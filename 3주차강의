@@ -200,7 +200,7 @@ sll = $t0, $s0, 2 ( shift left logical)
 
 -Shift operation 
 ㄴ>logical shift 는 항상 빈 자리에 0이 채워진다.
-ㄴ>Arithmetic Shift right 의 경우, 옮겨지는 원소의 (0 or 1) 이 카피된다
+ㄴ>Arithmetic Shift right(shift) 의 경우, 옮겨지는 원소의 (0 or 1) 이 카피된다
 ㄴ>어떻게 옮기느냐에 따라 빈자리에 채워지는 값 달라지는데 이거 파악할 것
 
 -Conditional & unconditional branch 명령 다른 것 숙지할 것
