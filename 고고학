@@ -1,0 +1,23 @@
+# Computer_structure
+2021 1학기 컴퓨터구조론 내용정리
+
+1. ALU Control
+
+input
+- OP Code 로부터 파생된 ALUOP 2bit
+- funct 영역으로부터 파생된 6bit
+
+output
+- 결과물로 ALU Control Input 4bit
+
+2. Control Unit
+
+input 
+- OP Code 6bit 
+
+output 
+- 상기한 ALU Control 로 입력될 ALUOP 2bit
+- 나머지 각종 기능성 비트들 7bit
+ㄴ> 기능성비트들의 진리표는 Simple.pdf 에 
+
+3.
