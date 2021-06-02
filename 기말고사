@@ -1,0 +1,76 @@
+# Computer_structure
+2021 1학기 컴퓨터구조론 내용정리
+
+CHPT 4
+
+Logic Blocks : I-MEM, Add, Mux, ALU, Regs, D-Mem, Sign-Extend, Shift-Left-2
+
+ㄴ>Cycle Time 을 위 Logic Block 들이 사용되는 Path 를 바탕으로 알아야 한다.
+
+4.1
+Instruction Fetch : PC = PC+4 , IR = Memory[PC} 2가지의 LB 가 필요하다.
+
+ㄴ>이들은 I-MEM, Add 위 두개의 Logic Block 들을 필요로 한다.
+ㄴ>특이사항으로, PC 메모리에서 Load 하고 +4 하여 Feedback 하는 과정은 동시에 일어난다.
+
+ㄴ>따라서 이 둘 중 에서 더 오래 걸리는 I-MEM 의 레이턴시가 Cycle Time 이 된다.
+
+
+4.2
+Unconditional Branch 명령어 : MIPS 의 "b" 명령어. I-MEM, Sign-Ext, SLL, ADD, MUX 총 5가지의 LB 가 필요하다.
+
+ㄴ> 이번엔 이들의 레이턴시를 선형적으로 모두 더한다.
+ㄴ> 이 문제에 나온 경우는 특히 Unconditional 이다. bne 의 경우처럼 Regs, ALU 등을 사용할 이유가 없다.
+ㄴ> 그래서 imm 영역의 데이터를 가공하는 Sign-Ext, SLL 등만 사용한다. 
+
+
+4.3
+Conditional Branch 명령어 : MIPS 의 "beq" 명령어. I-MEM, Reg(+Sign Ext.), Mux(+SLL), ALU(+Add), Mux 총 5가지의 LB 가 필요하다.
+
+ㄴ> 괄호 안의 동작들은 동시에 동작하는 LB 들이다. 다만 이들은 괄호 밖의 더 빠른 동작들에 잡아먹혀(마치 4.1 의 Add LB 처럼) 드러나지 않는 것이다.
+ㄴ> Conditional Path 이기 때문에, Reg, Mux, ALU 로 통하는 조건식 비교연산이 수행되어야 하기 때문에, Cycle Time 이 더 길다.
+
+
+
+4.4, 4.5 & 4.6
+
+4.4 : 위 LB 들의 정보들은 어떤 종류의 Instruction 들이 필요로 할까 : 정답은 PC-Relative Branches
+4.5 : 어떤 Instruction 들이 위의 LB 들을 Critical Path 로 사용하는가? : PC-Relative, Unconditional Branches
+ㄴ> MIPS 의 오리지널 명령으들의 경우 
+4.6 : Conditional 과 Unconditional 의 비교이다. "b" 와 다르게 "beq" 만 사용하는 경우 105 가 더 길어지는 상황을 이야기하고 있다.
+
+
+5.
+
+5.1 : Data Memory 를 사용하는 명령어의 비율만 뽑아보라는 문제. Lw 와 Sw 의 비율을 더하면 된다.
+5.2 : Sign-Extend LB 에 대한 이야기
+ㄴ> I-Type 의 제시된 명령어들 - addi, LW, SW, BEQ 이들은 모두 I-Type 이기 때문에 Sign-Ext. 사용한다.
+ㄴ> 다만, 해당 LB 가 필요하지 않더라도, 계산은 항상 이루어지고 있다. 다만 MUX 를 통해 이 LB 의 OUTPUT 이 사용될지 말지 결정되어 버려질 뿐이다.
+
+
+7. 
+이 문제는 어떤 Instruction 을 실행하는 과정을 담은 대서사시다.
+- 32개의 32-bit word 길이의 Register 상태는 주어져 있다.
+- Data Memory 는 싹다 0 으로 초기화 되어 있는 상태이다.
+
+7.1
+- Sign Ext. 는 하위 16비트만 취해서 연장시킨다. 그 결과를 묻는 것.
+- Junp's SLL 란 표현은, imm 명령에서 사용하는 SLL 유닛이 아닌, 상단의 SLL 유닛을 사용한다는 표현이다.
+ㄴ> 그리하여, 상단의 SLL 은 Tartget 26 비트를 28비트 데이터로 단순히 확장한다.
+
+7.2
+- ALU Control 이라는 유닛에는 총 2가지 Input 이 들어간다. 
+- 명령어의 하위 6비트가 들어간다.
+- 그리고 ALUop 가 들어가는데, 이것은 OPCODE 부분을 Control FSM 에서 조건문으로 분기시키기 때문에 표를 참고하지 않으면 알 길이 없다.
+
+
+7.3 
+- 
+
+
+
+
+
+
+
+
