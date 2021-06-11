@@ -7,7 +7,7 @@ CHPT 4
 4A - Single Cycle
 
 Control 유닛의 변수들
-
+ 
 Reg Dst : 0 일 경우, imm 을 사용하는 명령어이고, 1 일 경우 R 을 사용하는 명령어이다.
 ㄴ> 연산의 데스티네이션을 어디로 보낼 지 결정하는 변수라고 하겠다.
 
@@ -19,6 +19,7 @@ ALU Src : 1 일 경우, ALU 의 두번째 란에 들어갈 값을 imm 영역에�
 
 PC Src : 1 일 경우, branch 명령어를 수행하겠다는 것으로 간주한다.
 ㄴ> 0 일 경우, 일반적인 방법으로 PC = PC + 4 한다.
+ㄴ> 만약 beq 의 조건이 만족되는 경우, 즉 ALU 
 
 MemRead : load 명령어.
 MemWrite : save 명령어. 
@@ -33,10 +34,11 @@ MemtoReg : 0 일 때 Save, 1 일때 Load 계통이다.
 ALUSrc A : 0 일 경우 PC 를 Input 으로 받는다.
 ALUSrc B : 총 4가지 Case 가 있다.
 
-- 일반적인 I 타이프 명령어
 - 일반적인 R 타이프 명렁어
-- sll 을 위해 4를 받는 Case
+- 일반적인 I 타이프 명령어
+- PC +4 를 계산하기 위해 B = 4 를 받는 Case
 - Branch 를 위해 Shift 2 된 imm 을 받는 Case
+
 
 PCSrc : 총 3가지 Case 가 있다.
 - PC +4 (일반적 케이스)
@@ -76,7 +78,7 @@ Memory read Completion : 레지스터 영역에 값을 읽거나 쓴다.
 이때, 멀티사이클의 1사이클 타임은 어떻게 결정되는가?
 => 5가지의 Instruction Block 들 중에서 레이턴시가 가장 큰, 즉 가장 느린 블록의 수행시간을 1사이클 타임으로 잡는다.
 
-멀티사이클의 FSM
+멀티사이클의 FSM - Moore Machine
 
 - 상술한 컨트롤 변수들은, State Machine 라는 것을 사용하여 기술된다.
 - 각 State 들은 Instruction Block 들을 더욱 세분한 것이며, 각 스테이지마다 Control 변수들이 조정된다.
@@ -85,6 +87,11 @@ Memory read Completion : 레지스터 영역에 값을 읽거나 쓴다.
 
 - 더 쪼개짐으로 인해서, 가장 길게 걸리는 Instruction 을 기준으로 설정되었던 Cycle Time 으로 인한 Waste 를 없엘 수 있다.
 
+
+예외사항 : 오류가 발생하였을 때 대처하는 로직이 존재하고, 이것은 FSM 의 새로운 State 로 기록된다.
+
+- EPC : PC - 4 를 기록한다.
+- PC = 8000 0180
 
 ========================
 파이프라인 - 원리
@@ -96,6 +103,8 @@ Memory read Completion : 레지스터 영역에 값을 읽거나 쓴다.
 - 그렇게 되면, 총 5개의 스테이지가 1사이클마다 전부 동작하니, 1사이클 당 1개의 명령어가 실행되는 효과를 볼 수 있다.
 ㄴ> 한번에 5개 이상이 동작하면 어떤 스테이지는 한번에 두개의 명령어를 처리해야 되기 때문에 논리적으로 불가능하다.
 ㄴ> 총 5개의 명령어만 한번에 동작 가능한 것은 이러한 이유에서이다.
+
+- 각 모듈들을 서로 독립시키기 위해서 (데이터가 유실되지 않게 하기 위해서), 모듈 사이사이에 레지스터가 존재한다.
 
 
 Pipeline - Hazards
@@ -222,6 +231,8 @@ Unconditional Branch 명령어 : MIPS 의 "b" 명령어. I-MEM, Sign-Ext, SLL, A
 ㄴ> 이 문제에 나온 경우는 특히 Unconditional 이다. bne 의 경우처럼 Regs, ALU 등을 사용할 이유가 없다.
 ㄴ> 그래서 imm 영역의 데이터를 가공하는 Sign-Ext, SLL 등만 사용한다. 
 
+ㄴ> 4.1 에서는 프로세서의 Cycle Time 을 봤던 것이기 때문에, LB 중에 가장 긴 레이턴시를 가진 I-MEM 의 200 ps 가 선정된다.
+ㄴ> 4.2 에서는, Data Path 의 총 레이턴시를 물어보고 있기 때문에 필요한 모든 LB 들의 레이턴시를 선형적으로 더하게 된다.
 
 4.3
 Conditional Branch 명령어 : MIPS 의 "beq" 명령어. I-MEM, Reg(+Sign Ext.), Mux(+SLL), ALU(+Add), Mux 총 5가지의 LB 가 필요하다.
@@ -231,7 +242,7 @@ Conditional Branch 명령어 : MIPS 의 "beq" 명령어. I-MEM, Reg(+Sign Ext.),
 
 
 
-4.4, 4.5 & 4.6
+4.4, 4.5 & 4.6 : sll 에 대하여 
 
 4.4 : 위 LB 들의 정보들은 어떤 종류의 Instruction 들이 필요로 할까 : 정답은 PC-Relative Branches
 4.5 : 어떤 Instruction 들이 위의 LB 들을 Critical Path 로 사용하는가? : PC-Relative, Unconditional Branches
@@ -418,6 +429,46 @@ Stall on branch : Branch 끝날때까지 기다리기
 
 
 
+==============================================================
+CHPT 5 - Cache
+
+Direct Mapped Cache
+- 데이터가 Linear 하게 들어온다. (주소와 함께)
+- 그리고 이것이 Cache 에 순서대로 누적된다. 단위는 Block.
+- integer 데이터가 8자리수 이진수로 해석이 된다.
+
+- 우선 오른쪽 4비트 - Index 를 식별한다.
+- Block 의 개수에 따라서 Index 4비트 어떻게 읽어야 할지 구분
+- index 읽었으면 왼쪽 4비트로 이동
+
+- 문제에 따라 좌측의 4비트를 Tag 로 읽기도 하고
+- 어떤 문제는 우측의 1비트까지 총 5비트를 Tag 를 읽는 데 사용하기도 한다.
+
+ㄴ> 이말은 즉, Tag 를 식별하기 위해 사용된 비트가 Index 를 식별하기 위해 중복으로 사용되기도 한다는 것이다.
+
+
+- 5장 초반부의 포인트는, 위 방법을 잘 숙지하여 우선 Index 와 Tag 를 읽는 것이다
+
+
+2.
+
+(1)
+
+- 우선 32bit 주소들을 Binary No. 로 나타낸다. 
+- 총 8 비트만 일단 나타냈다. 이들 중 앞의 4자리는 Tag 라 하고, 뒤의 4 자리는 Index 라고 한다.
+
+(3)
+
+- 1 Word Blocks 의 경우 : index 쪽에서 0비트가 Offset 으로 사용된다.
+
+- 2 Word Blocks 의 경우 : index 쪽에서 1비트가 Offset 으로 사용된다.
+
+- 4 Word Blocks 의 경우 : index 쪽에서 2비트가 Offset 으로 사용된다.
+
+Cycle 계산하기
+
+- Processing Time : 모든 데이터에 대하여 곱셈해서 더해줘야 한다
+- Miss Stall Time : Miss 가 발생하여 메모리에서 데이터를 직접 가져와야 하는 경우 소요되는 시간이다.
 
 
 
